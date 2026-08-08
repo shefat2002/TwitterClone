@@ -18,4 +18,14 @@ public class Follow
     {
         get { return _followedAt; }
     }
+    private Follow()
+    {
+    }
+
+    public Follow(Guid followerId, Guid followeeId)
+    {
+        _followerId = followerId;
+        _followeeId = followeeId;
+        _followedAt = DateTime.UtcNow;
+    }
 }

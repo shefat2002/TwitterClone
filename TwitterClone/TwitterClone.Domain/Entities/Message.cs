@@ -29,4 +29,15 @@ public class Message
     {
         get { return _sentAt; }
     }
+    private Message()
+    {}
+
+    public Message(Guid id,Guid senderId, Guid receiverId, string content)
+    {
+        _id = id;
+        _senderId = senderId;
+        _receiverId = receiverId;
+        _content = content;
+        _sentAt = DateTime.UtcNow;
+    }
 }

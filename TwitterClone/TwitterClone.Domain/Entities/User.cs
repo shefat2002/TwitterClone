@@ -19,4 +19,14 @@ public class User
     {
         get { return _email; }
     }
+
+    private User()
+    {
+    }
+    public User(Guid id, string username, string email)
+    {
+        _id = id;
+        _username = username;
+        _email = email;
+    }
 }

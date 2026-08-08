@@ -24,4 +24,15 @@ public class Notification
     {
         get { return _createdAt; }
     }
+    private Notification()
+    {
+    }
+
+    public Notification(Guid id,Guid userId, string message)
+    {
+        _id = id;
+        _userId = userId;
+        _message = message;
+        _createdAt = DateTime.UtcNow;
+    }
 }

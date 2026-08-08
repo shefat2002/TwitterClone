@@ -18,4 +18,16 @@ public class Like
     {
         get { return _likedAt; }
     }
+
+    private Like()
+    {
+    }
+
+    public Like(Guid userId, Guid tweetId)
+    {
+        _userId = userId;
+        _tweetId = tweetId;
+        _likedAt = DateTime.UtcNow;
+    }
+    
 }

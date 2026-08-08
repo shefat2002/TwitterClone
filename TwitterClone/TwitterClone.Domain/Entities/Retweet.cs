@@ -23,4 +23,15 @@ public class Retweet
     {
         get { return _retweetedAt; }
     }
+
+    private Retweet()
+    {
+    }
+    public Retweet(Guid id, Guid userId, Guid originalTweetId, DateTime retweetedAt)
+    {
+        _id = id;
+        _userId = userId;
+        _originalTweetId = originalTweetId;
+        _retweetedAt = retweetedAt;
+    }
 }
