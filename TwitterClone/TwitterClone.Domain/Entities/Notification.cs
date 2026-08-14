@@ -7,11 +7,9 @@ public class Notification:BaseEntity
     protected string Message { get; set; }
     public bool IsRead { get; set; }
     
-    public Notification(string type, string message, Guid userId) : base(Guid.NewGuid())
+    public Notification(string type) : base(Guid.NewGuid())
     {
         Type = type;
-        Message = message;
-        UserId = userId;
         IsRead = false;
     }
 }
