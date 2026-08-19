@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterClone.Domain", "TwitterClone.Domain\TwitterClone.Domain.csproj", "{EFA257E9-1478-403F-8B3D-4A434FE54716}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFA257E9-1478-403F-8B3D-4A434FE54716}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFA257E9-1478-403F-8B3D-4A434FE54716}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFA257E9-1478-403F-8B3D-4A434FE54716}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFA257E9-1478-403F-8B3D-4A434FE54716}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
