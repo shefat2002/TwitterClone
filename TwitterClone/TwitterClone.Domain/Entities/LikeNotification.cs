@@ -14,4 +14,10 @@ public class LikeNotification : Notification
     {
         return $"User {LikebyUserId} liked your tweet";
     }
+
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, LikebyUserId: {LikebyUserId}, TweetId: {TweetId}";
+    }
 }

@@ -12,4 +12,10 @@ public class MentionNotification : Notification
     {
         return $"User {MentionedByUserId} mentioned you in a tweet";
     }
+
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, MentionedByUserId: {MentionedByUserId}";
+    }
 }

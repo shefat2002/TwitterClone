@@ -11,4 +11,9 @@ public sealed class SystemNotification: Notification
     {
         return $"System Notification: {Message}";
     }
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, Message: {Message}";
+    }
 }

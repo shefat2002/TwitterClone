@@ -21,5 +21,10 @@ public abstract class Notification:BaseEntity
     {
         return $"User {UserId} has a new {Type} notification";
     }
-    
+
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, UserId: {UserId}, Type: {Type}, IsRead: {IsRead}";
+    }
 }
