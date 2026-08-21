@@ -10,8 +10,8 @@ public class CommentNotification : Notification
         CommentByUserId = commentByUserId;
         CommentedTweetId = commentedTweetId;
     }
-    public void AddMessage(string message)
+    public override string GetMessage()
     {
-        Message = message;
+        return $"User {CommentByUserId} commented on your tweet";
     }
 }

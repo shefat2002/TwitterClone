@@ -10,8 +10,8 @@ public class LikeNotification : Notification
         LikebyUserId = likebyUserId;
         TweetId = tweetId;
     }
-    public void AddMessage(string message)
+    public override string GetMessage()
     {
-        Message = message;
+        return $"User {LikebyUserId} liked your tweet";
     }
 }
