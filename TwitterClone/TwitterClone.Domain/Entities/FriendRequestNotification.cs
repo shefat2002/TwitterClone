@@ -9,6 +9,10 @@ public sealed class FriendRequestNotification : Notification
         RequestedByUserId = requestedByUserId;
     }
 
+    public void AddMessage(string message)
+    {
+        Message = message;
+    }
 
     public override string GetMessage()
     {

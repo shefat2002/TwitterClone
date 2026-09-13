@@ -7,11 +7,13 @@ public class Message: BaseEntity
     public string? Content { get; private set; }
     public bool IsRead { get; set; }
     
-    public Message (Guid senderId, Guid receiverId, string? content) : base(Guid.NewGuid())
+    public Message () : base(Guid.NewGuid())
     {
-        SenderId = senderId;
-        ReceiverId = receiverId;
-        Content = content;
-        IsRead = false;
+    }
+
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, SenderId: {SenderId}, ReceiverId: {ReceiverId}, Content: {Content}, IsRead: {IsRead}";
     }
 }

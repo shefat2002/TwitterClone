@@ -10,4 +10,10 @@ public class Bookmark : BaseEntity
         UserId = userId;
         TweetId = tweetId;
     }
+
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, UserId: {UserId}, TweetId: {TweetId}";
+    }
 }

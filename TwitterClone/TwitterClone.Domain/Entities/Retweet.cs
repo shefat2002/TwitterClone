@@ -6,10 +6,13 @@ public class Retweet : BaseEntity
     public Guid TweetId { get; set; }
     public string? Comment { get; set; }
     
-    public Retweet(Guid userId, Guid tweetId, string comment="") : base(Guid.NewGuid())
+    public Retweet() : base(Guid.NewGuid())
     {
-        UserId = userId;
-        TweetId = tweetId;
-        Comment = comment;
+    }
+
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, UserId: {UserId}, TweetId: {TweetId}, Comment: {Comment}";
     }
 }

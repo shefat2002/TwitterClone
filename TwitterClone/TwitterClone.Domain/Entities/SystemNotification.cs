@@ -7,6 +7,10 @@ public sealed class SystemNotification: Notification
     {
         Message = message;
     }
+    public void AddMessage(string message, Guid userId)
+    {
+        Message = message;
+    }
     public override string GetMessage()
     {
         return $"System Notification: {Message}";

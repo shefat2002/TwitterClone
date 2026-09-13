@@ -5,9 +5,12 @@ public class Follow : BaseEntity
     public Guid FollowerId { get; set; }
     public Guid FollowingId { get; set; }
 
-    public Follow(Guid followerId, Guid followingId) : base(Guid.NewGuid())
+    public Follow() : base(Guid.NewGuid())
     {
-        FollowerId = followerId;
-        FollowingId = followingId;
+    }
+    public override string DescribeRecord()
+    {
+        var baseRecord = base.DescribeRecord();
+        return $"{baseRecord}, FollowerId: {FollowerId}, FollowingId: {FollowingId}";
     }
 }

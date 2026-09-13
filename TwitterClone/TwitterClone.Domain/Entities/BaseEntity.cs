@@ -2,11 +2,11 @@ namespace TwitterClone.Domain.Entities;
 
 public class BaseEntity
 {
-    public Guid Id { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? ModifiedAt { get; set; }
-    public Guid CreatedBy { get; set; }
-    public Guid? ModifiedBy { get; set; }
+    public Guid Id { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime? ModifiedAt { get; private set; }
+    public Guid CreatedBy { get; private set; }
+    public Guid? ModifiedBy { get; private set; }
     
     public BaseEntity(Guid id)
     {
