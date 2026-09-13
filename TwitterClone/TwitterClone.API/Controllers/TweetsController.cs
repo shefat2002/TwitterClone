@@ -16,6 +16,7 @@ public class TweetsController : ControllerBase
     [HttpGet]
     public IActionResult GetTweets()
     {
+        var appName = _configuration.GetValue<string>("TwitterSettings:AppName");
         var maxLength = _configuration.GetValue<int>("TwitterSettings:MaxTweetLength");
         var tweets = new List<object>
         {
@@ -23,6 +24,7 @@ public class TweetsController : ControllerBase
         };
         
         return Ok(new{
+            appName,
             maxLength,
             tweets
         });
