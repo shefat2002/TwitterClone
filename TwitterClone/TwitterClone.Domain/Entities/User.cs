@@ -6,11 +6,8 @@ public class User : BaseEntity, IFollowable, INotifiable
     public string LastName { get; set; }
     public string Email { get; set; }
    
-    public User(string firstName, string lastName, string email) : base(Guid.NewGuid())
+    public User() : base(Guid.NewGuid())
     {
-        FirstName = firstName;
-        LastName = lastName;
-        Email = email;
     }
     private List<Guid> _followers = new List<Guid>();
     private List<Guid> _incomingNotifications = new List<Guid>();
