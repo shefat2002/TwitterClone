@@ -10,6 +10,7 @@ builder.Services.AddOpenApi();
 
 // Repository
 builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddSingleton<TweetRepository>();
 
 var app = builder.Build();
 

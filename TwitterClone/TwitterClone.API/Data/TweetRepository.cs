@@ -24,12 +24,16 @@ public class TweetRepository
     {
         return _tweets.Remove(tweet);
     }
-    public IEnumerable<Tweet> GetAllTweets()
+    public IEnumerable<Tweet> GetTweets()
     {
         return _tweets;
     }
     public Tweet? GetTweetById(Guid id)
     {
         return _tweets.SingleOrDefault(t => t.Id == id);
+    }
+    public IEnumerable<Tweet> GetTweetsByUserId(Guid userId)
+    {
+        return _tweets.Where(t => t.UserId == userId);
     }
 }

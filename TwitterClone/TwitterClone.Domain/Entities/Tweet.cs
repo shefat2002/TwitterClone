@@ -5,7 +5,9 @@ public class Tweet : BaseEntity, ILikeable
     public Guid UserId { get; set; }
     public string Content { get; set; }
     public static int MaxContentLength => 200;
-    
+    public Tweet() : base(Guid.NewGuid())
+    {
+    }
     public Tweet(string content) : base(Guid.NewGuid())
     {
         Content = content;
