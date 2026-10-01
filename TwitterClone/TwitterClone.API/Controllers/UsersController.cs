@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitterClone.API.Data;
+using TwitterClone.API.Dtos;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers;
@@ -7,40 +9,59 @@ namespace TwitterClone.API.Controllers;
 // api/users
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IConfiguration _configuration;
+    private readonly UserRepository _userRepository;
 
-    public UsersController(IConfiguration configuration)
+    public UsersController(IConfiguration configuration, UserRepository userRepository)
     {
         _configuration = configuration;
+        _userRepository = userRepository;
     }
 
     // GET: api/users
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult GetUsers()
     {
-        var users = new List<User>
+        var users = _userRepository.GetUsers();
+        return Ok(users.Select(user => new UserDto
         {
-            new() { FirstName = "Rahim", LastName = "Uddin", Email = "rahimuddin@example.com" },
-            new() { FirstName = "Karim", LastName = "Uddin", Email = "karimuddin@example.com" },
-            new() { FirstName = "Jamal", LastName = "Uddin", Email = "jamaluddin@example.com" }
-        };
-        return Ok(users);
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email
+        }));
     }
     
     // POST: api/users
     [HttpPost]
     [AllowAnonymous]
-    public IActionResult CreateUser()
+    public IActionResult CreateUser([FromBody] CeateUserDto userDto)
     {
-        return Ok(new
+        if(string.IsNullOrWhiteSpace(userDto.FirstName) || string.IsNullOrWhiteSpace(userDto.LastName) || string.IsNullOrWhiteSpace(userDto.Email))
         {
-            UserId = Guid.NewGuid(),
-            FirstName = "Kamal",
-            LastName = "Uddin",
-            Email = "kamaluddin@example.com"
+            return BadRequest("All fields are required.");
+        }
+        var existingUser = _userRepository.GetUserByEmail(userDto.Email);
+        if (existingUser != null)
+        {
+            return BadRequest("User with this email already exists.");
+        }
+        var createdUser = _userRepository.AddUser(new User
+        {
+            FirstName = userDto.FirstName,
+            LastName = userDto.LastName,
+            Email = userDto.Email
+        });
+        
+        return Ok(new UserDto{
+            Id = createdUser.Id,
+            FirstName = createdUser.FirstName,
+            LastName = createdUser.LastName,
+            Email = createdUser.Email
         });
     }
 
@@ -48,25 +69,41 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetUserById([FromRoute] Guid id)
     {
-        return Ok(new
+        var user = _userRepository.GetUserById(id);
+        if (user == null)
         {
-            UserId = id,
-            FirstName = "Jamal",
-            LastName = "Uddin",
-            Email = "kamaluddin@example.com"
+            return NotFound("User not found.");
+        }
+        return Ok(new UserDto
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email
         });
     }
     
     //PUT: api/users/{id}
     [HttpPut("{id}")]
-    public IActionResult UpdateUser([FromRoute] Guid id)
+    public IActionResult UpdateUser([FromRoute] Guid id, [FromBody] UpdateUserDto userDto)
     {
-        return Ok(new
+        var user = _userRepository.GetUserById(id);
+        if (user == null)
         {
-            UserId = id,
-            FirstName = "Kamal",
-            LastName = "Pasha",
-            Email = "kamaluddin@example.com"
+            return NotFound("User not found.");
+        }
+        
+        user.FirstName = userDto.FirstName;
+        user.LastName = userDto.LastName;
+        
+        var updatedUser = _userRepository.UpdateUser(user);
+        
+        return Ok(new UserDto
+        {
+            Id = updatedUser.Id,
+            FirstName = updatedUser.FirstName,
+            LastName = updatedUser.LastName,
+            Email = updatedUser.Email
         });
     }
     
@@ -84,11 +121,15 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteUser([FromRoute] Guid id)
     {
-        return Ok(new
+        var user = _userRepository.GetUserById(id);
+        if (user == null)
         {
-            UserId = id,
-            Message = "User deleted successfully."
-        });
+            return NotFound("User not found.");
+        }
+
+        var isDeleted = _userRepository.DeleteUser(user);
+
+        return Ok(isDeleted);
     }
 
 }
