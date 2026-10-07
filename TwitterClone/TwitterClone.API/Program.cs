@@ -13,10 +13,11 @@ builder.Services.AddOpenApi();
 
 // Repository
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
-builder.Services.AddSingleton<TweetRepository>();
+builder.Services.AddSingleton<ITweetRepository,TweetRepository>();
 
 // Service
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITweetService, TweetService>();
 
 var app = builder.Build();
 

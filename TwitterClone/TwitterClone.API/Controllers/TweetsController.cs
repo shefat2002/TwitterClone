@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TwitterClone.API.Data;
 using TwitterClone.Application.Dtos.Tweet;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers;
@@ -13,12 +14,12 @@ namespace TwitterClone.API.Controllers;
 public class TweetsController : ControllerBase
 {
     private readonly IConfiguration _configuration;
-    private readonly TweetRepository _tweetRepository;
+    private readonly ITweetService _tweetService;
 
-    public TweetsController(IConfiguration configuration, TweetRepository tweetRepository)
+    public TweetsController(ITweetService tweetService, IConfiguration configuration)
     {
+        _tweetService = tweetService;
         _configuration = configuration;
-        _tweetRepository = tweetRepository;
     }
 
     [HttpGet]
@@ -26,82 +27,58 @@ public class TweetsController : ControllerBase
     {
         var appName = _configuration.GetValue<string>("TwitterSettings:AppName");
         var maxLength = _configuration.GetValue<int>("TwitterSettings:MaxTweetLength");
-        var tweets = _tweetRepository.GetTweets();
+        var tweets = _tweetService.GetTweets();
 
-        return Ok(tweets.Select(t => new TweetDto
-        {
-            Id = t.Id,
-            UserId = t.UserId,
-            Content = t.Content
-        }));
+        return Ok(tweets);
     }
 
     // POST: api/tweets
     [HttpPost]
     public IActionResult CreateTweet([FromBody] CreateTweetDto tweet)
     {
-        if(string.IsNullOrWhiteSpace(tweet.Content) || tweet.Content.Length > _configuration.GetValue<int>("TwitterSettings:MaxTweetLength"))
+        var createdTweet = _tweetService.CreateTweetDto(tweet);
+        if(createdTweet == null)
         {
-            return BadRequest($"Tweet content must be between 1 and {_configuration.GetValue<int>("TwitterSettings:MaxTweetLength")} characters.");
+            return BadRequest("Invalid tweet data.");
         }
-        var createdTweet = _tweetRepository.AddTweet(new Tweet
-        {
-            UserId = tweet.UserId,
-            Content = tweet.Content
-        });
-        return Ok(new TweetDto()
-        {
-            Id = createdTweet.Id,
-            UserId = createdTweet.UserId,
-            Content = createdTweet.Content
-        });
+        return Ok(createdTweet);
     }
 
     // GET: api/tweets/{id}
     [HttpGet("{id}")]
     public IActionResult GetTweetById([FromRoute] Guid id)
     {
-        var tweet = _tweetRepository.GetTweetById(id);
+        var tweet = _tweetService.GetTweetById(id);
         if (tweet == null)
         {
             return NotFound($"Tweet with ID {id} not found.");
         }
-        return Ok(new TweetDto{
-            Id = tweet.Id,
-            UserId = tweet.UserId,
-            Content = tweet.Content
-        });
+        return Ok(tweet);
     }
 
     // PUT: api/tweets/{id}
     [HttpPut("{id}")]
     public IActionResult UpdateTweet([FromRoute] Guid id, [FromBody] UpdateTweetDto tweet)
     {
-        var existingTweet = _tweetRepository.GetTweetById(id);
+        var existingTweet = _tweetService.GetTweetById(id);
         if (existingTweet == null)
         {
             return NotFound($"Tweet with ID {id} not found.");
         }
         existingTweet.Content = tweet.Content;
-        var updatedTweet = _tweetRepository.UpdateTweet(existingTweet);
-        return Ok(new TweetDto
-        {
-            Id = id,
-            UserId =  updatedTweet.UserId,
-            Content =  updatedTweet.Content
-        });
+        var updatedTweet = _tweetService.UpdateTweet(id, tweet);
+        return Ok(updatedTweet);
     }
 
     // DELETE: api/tweets/{id}
     [HttpDelete("{id}")]
     public IActionResult DeleteTweet([FromRoute] Guid id)
     {
-        var  tweet = _tweetRepository.GetTweetById(id);
-        if (tweet == null)
+        var isDeleted = _tweetService.DeleteTweet(id);
+        if (isDeleted == false)
         {
             return NotFound($"Tweet with ID {id} not found.");
         }
-        var isDeleted = _tweetRepository.DeleteTweet(tweet);
         return Ok(isDeleted);
     }
 }

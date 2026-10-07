@@ -13,13 +13,11 @@ namespace TwitterClone.API.Controllers;
 // [Authorize]
 public class UsersController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
     private readonly IUserService _userService;
 
-    public UsersController(IUserService userService, IConfiguration configuration)
+    public UsersController(IUserService userService)
     {
         _userService = userService;
-        _configuration = configuration;
     }
 
     // GET: api/users
