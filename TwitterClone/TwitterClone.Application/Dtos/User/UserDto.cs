@@ -1,4 +1,4 @@
-namespace TwitterClone.API.Dtos;
+namespace TwitterClone.Application.Dtos.User;
 
 public class UserDto
 {

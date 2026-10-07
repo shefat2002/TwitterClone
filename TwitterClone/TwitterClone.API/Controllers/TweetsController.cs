@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TwitterClone.API.Data;
-using TwitterClone.API.Dtos.Tweet;
+using TwitterClone.Application.Dtos.Tweet;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers;
