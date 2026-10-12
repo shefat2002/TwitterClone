@@ -1,8 +1,10 @@
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Data;
 
-public class TweetRepository
+public class TweetRepository: ITweetRepository
+    
 {
     private List<Tweet> _tweets{ get; set; }
     public TweetRepository()
@@ -24,6 +26,7 @@ public class TweetRepository
     {
         return _tweets.Remove(tweet);
     }
+
     public IEnumerable<Tweet> GetTweets()
     {
         return _tweets;

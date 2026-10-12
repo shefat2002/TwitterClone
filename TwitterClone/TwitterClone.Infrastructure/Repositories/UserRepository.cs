@@ -1,8 +1,9 @@
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
-namespace TwitterClone.API.Data;
+namespace TwitterClone.Infrastructure.Repositories;
 
-public class UserRepository
+public class UserRepository : IUserRepository    
 {
     private List<User> _users { get; set; }
     
@@ -23,6 +24,7 @@ public class UserRepository
         _users.Add(user);
         return user;
     }
+
     public bool DeleteUser(User user)
     {
         _users.Remove(user);
