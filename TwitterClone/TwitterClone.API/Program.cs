@@ -1,6 +1,7 @@
 using TwitterClone.API.Data;
 using TwitterClone.Application.Interfaces;
 using TwitterClone.Application.Services;
+using TwitterClone.Domain.Entities;
 using TwitterClone.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,12 @@ builder.Services.AddOpenApi();
 // Repository
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<ITweetRepository,TweetRepository>();
+builder.Services.AddSingleton<IFollowRepository, FollowRepository>();
+builder.Services.AddSingleton<IBookmarkRepository, BookmarkRepository>();
+builder.Services.AddSingleton<INotificationRepository, NotificationRepository>();
+builder.Services.AddSingleton<IMessageRepository, MessageRepository>();
+builder.Services.AddSingleton<IRetweetRepository, RetweetRepository>();
+builder.Services.AddSingleton<ILikeRepository, LikeRepository>();
 
 // Service
 builder.Services.AddScoped<IUserService, UserService>();
