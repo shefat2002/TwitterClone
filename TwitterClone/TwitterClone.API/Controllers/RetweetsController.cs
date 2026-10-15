@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitterClone.Application.Dtos.Retweet;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers;
@@ -7,63 +9,79 @@ namespace TwitterClone.API.Controllers;
 // api/retweets
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class RetweetsController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly IRetweetService _retweetService;
 
-    public RetweetsController(IConfiguration configuration)
+    public RetweetsController(IRetweetService retweetService)
     {
-        _configuration = configuration;
+        _retweetService = retweetService;
     }
+
 
     // GET: api/retweets
     [HttpGet]
-    public IActionResult GetRetweets()
+    [ProducesResponseType(typeof(List<RetweetDto>), StatusCodes.Status200OK)]
+    public IActionResult GetRetweets([FromQuery] Guid? userId, [FromQuery] Guid? tweetId)
     {
-        var retweets = new List<Retweet>
+        return Ok(_retweetService.GetRetweets(userId, tweetId));
+    }
+    
+    // GET: api/retweets/{id}
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(RetweetDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult GetRetweetById([FromRoute] Guid id)
+    {
+        var retweet = _retweetService.GetRetweetById(id);
+        if (retweet == null)
         {
-            new() { UserId = Guid.NewGuid(), TweetId = Guid.NewGuid(), Comment = "Great tweet!" },
-            new() { UserId = Guid.NewGuid(), TweetId = Guid.NewGuid(), Comment = null },
-            new() { UserId = Guid.NewGuid(), TweetId = Guid.NewGuid(), Comment = "So true." }
-        };
-        return Ok(retweets);
+            return NotFound();
+        }
+        return Ok(retweet);
     }
 
     // POST: api/retweets
     [HttpPost]
-    public IActionResult CreateRetweet()
+    [ProducesResponseType(typeof(RetweetDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult CreateRetweet([FromBody] CreateRetweetDto createRetweetDto)
     {
-        return Ok(new
+        var createdRetweet = _retweetService.CreateRetweet(createRetweetDto);
+        if (createdRetweet == null)
         {
-            RetweetId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            TweetId = Guid.NewGuid(),
-            Comment = "This is a retweet."
-        });
+            return BadRequest("Failed to create retweet.");
+        }
+        return CreatedAtAction(nameof(GetRetweetById), new { id = createdRetweet.Id }, createdRetweet);
     }
 
-    // GET: api/retweets/{id}
-    [HttpGet("{id}")]
-    public IActionResult GetRetweetById([FromRoute] Guid id)
+    // PUT: api/retweets/{id}
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(RetweetDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult GetRetweetById([FromRoute] Guid id, [FromBody] UpdateRetweetDto updateRetweetDto)
     {
-        return Ok(new
+        var retweet = _retweetService.UpdateRetweet(id, updateRetweetDto);
+        if (retweet == null)
         {
-            RetweetId = id,
-            UserId = Guid.NewGuid(),
-            TweetId = Guid.NewGuid(),
-            Comment = "This is a single retweet."
-        });
+            return NotFound();
+        }
+        return Ok(retweet);
     }
 
     // DELETE: api/retweets/{id}
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteRetweet([FromRoute] Guid id)
     {
-        return Ok(new
+        var isDeleted = _retweetService.DeleteRetweet(id);
+        if (!isDeleted)
         {
-            RetweetId = id,
-            Message = "Retweet deleted successfully."
-        });
+            return NotFound();
+        }
+        return NoContent();
     }
 }

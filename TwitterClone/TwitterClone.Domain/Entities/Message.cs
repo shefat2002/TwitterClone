@@ -2,11 +2,12 @@ namespace TwitterClone.Domain.Entities;
 
 public class Message: BaseEntity
 {
-    public Guid SenderId { get; private set; }
-    public Guid ReceiverId { get; private set; }
-    public string? Content { get; private set; }
+    public Guid SenderId { get; set; }
+    public Guid ReceiverId { get; set; }
+    public string? Content { get; set; }
     public bool IsRead { get; set; }
-    
+    public DateTime SentAt { get; set; }
+
     public Message () : base(Guid.NewGuid())
     {
     }
