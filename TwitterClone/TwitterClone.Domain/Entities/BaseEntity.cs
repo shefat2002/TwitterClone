@@ -13,6 +13,10 @@ public class BaseEntity
         Id = id;
         CreatedAt = DateTime.UtcNow;
     }
+    public void MarkAsModified()
+    {
+        ModifiedAt = DateTime.UtcNow;
+    }
     public virtual string DescribeRecord()
     {
         return $"From Base Class! Id: {Id}, CreatedAt: {CreatedAt},ModifiedAt: {ModifiedAt}, CreatedBy: {CreatedBy},ModifiedBy: {ModifiedBy}";

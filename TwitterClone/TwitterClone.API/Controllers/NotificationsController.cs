@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitterClone.Application.Dtos.NotificationDto;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers;
@@ -7,127 +9,87 @@ namespace TwitterClone.API.Controllers;
 // api/notifications
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class NotificationsController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly INotificationService _notificationService;
 
-    public NotificationsController(IConfiguration configuration)
+    public NotificationsController(INotificationService notificationService)
     {
-        _configuration = configuration;
+        _notificationService = notificationService;
     }
+
 
     // GET: api/notifications
     [HttpGet]
-    public IActionResult GetNotifications()
+    [ProducesResponseType(typeof(List<NotificationDto>), StatusCodes.Status200OK)]
+    public IActionResult GetNotifications([FromQuery] Guid? userId, [FromQuery] string? type, [FromQuery] bool? isRead)
     {
-        var notifications = new List<object>
-        {
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Like", Message = "User liked your tweet", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Comment", Message = "User commented on your tweet", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Mention", Message = "User mentioned you in a tweet", IsRead = true },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "FriendRequest", Message = "User sent you a friend request", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "System", Message = "Welcome to TwitterClone!", IsRead = true }
-        };
-        return Ok(notifications);
-    }
-
-    // GET: api/notifications/likes
-    [HttpGet("likes")]
-    public IActionResult GetLikeNotifications()
-    {
-        var notifications = new List<object>
-        {
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Like", LikebyUserId = Guid.NewGuid(), Message = "User liked your tweet", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Like", LikebyUserId = Guid.NewGuid(), Message = "User liked your tweet", IsRead = true }
-        };
-        return Ok(notifications);
-    }
-
-    // GET: api/notifications/comments
-    [HttpGet("comments")]
-    public IActionResult GetCommentNotifications()
-    {
-        var notifications = new List<object>
-        {
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Comment", CommentByUserId = Guid.NewGuid(), Message = "User commented on your tweet", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Comment", CommentByUserId = Guid.NewGuid(), Message = "User commented on your tweet", IsRead = false }
-        };
-        return Ok(notifications);
-    }
-
-    // GET: api/notifications/mentions
-    [HttpGet("mentions")]
-    public IActionResult GetMentionNotifications()
-    {
-        var notifications = new List<object>
-        {
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Mention", MentionedByUserId = Guid.NewGuid(), Message = "User mentioned you in a tweet", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "Mention", MentionedByUserId = Guid.NewGuid(), Message = "User mentioned you in a tweet", IsRead = true }
-        };
-        return Ok(notifications);
-    }
-
-    // GET: api/notifications/friend-requests
-    [HttpGet("friend-requests")]
-    public IActionResult GetFriendRequestNotifications()
-    {
-        var notifications = new List<object>
-        {
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "FriendRequest", RequestedByUserId = Guid.NewGuid(), Message = "User sent you a friend request", IsRead = false },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "FriendRequest", RequestedByUserId = Guid.NewGuid(), Message = "User sent you a friend request", IsRead = false }
-        };
-        return Ok(notifications);
-    }
-
-    // GET: api/notifications/system
-    [HttpGet("system")]
-    public IActionResult GetSystemNotifications()
-    {
-        var notifications = new List<object>
-        {
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "System", Message = "Welcome to TwitterClone!", IsRead = true },
-            new { NotificationId = Guid.NewGuid(), UserId = Guid.NewGuid(), Type = "System", Message = "Your account was created successfully.", IsRead = true }
-        };
-        return Ok(notifications);
+        return Ok(_notificationService.GetNotifications(userId, type, isRead));
     }
 
     // GET: api/notifications/{id}
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(NotificationDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetNotificationById([FromRoute] Guid id)
     {
-        return Ok(new
+        var notification = _notificationService.GetNotificationById(id);
+        if (notification == null)
         {
-            NotificationId = id,
-            UserId = Guid.NewGuid(),
-            Type = "Like",
-            Message = "User liked your tweet",
-            IsRead = false
-        });
+            return NotFound();
+        }
+        return Ok(notification);
+    }
+    
+    // POST: api/notifications
+    [HttpPost]
+    [ProducesResponseType(typeof(NotificationDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult CreateNotification([FromBody] CreateNotificationDto createNotificationDto)
+    {
+        var createdNotification = _notificationService.CreateNotification(createNotificationDto);
+        if (createdNotification == null)
+        {
+            return BadRequest("Failed to create notification.");
+        }
+        return CreatedAtAction(nameof(GetNotificationById), new { id = createdNotification.Id }, createdNotification);
     }
 
-    // PUT: api/notifications/{id}
-    [HttpPut("{id}")]
+    //PATCH: api/notifications/{id}/read
+    [HttpPatch("{id}/read")]
+    [ProducesResponseType(typeof(NotificationDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult MarkNotificationAsRead([FromRoute] Guid id)
     {
-        return Ok(new
+        var updatedNotification = _notificationService.MarkNotificationAsRead(id);
+        if (updatedNotification == null)
         {
-            NotificationId = id,
-            UserId = Guid.NewGuid(),
-            Type = "Like",
-            Message = "User liked your tweet",
-            IsRead = true
-        });
+            return NotFound();
+        }
+        return Ok(updatedNotification);
+    }
+    
+    //PATCH: api/notifications/{id}/read-all
+    [HttpPatch("{id}/read-all")]
+    [ProducesResponseType(typeof(List<NotificationDto>), StatusCodes.Status200OK)]
+    public IActionResult MarkAllNotificationsAsRead([FromRoute] Guid id)
+    {
+        var updatedCount = _notificationService.MarkAllNotificationsAsRead(id);
+        return Ok(updatedCount);
     }
 
     // DELETE: api/notifications/{id}
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteNotification([FromRoute] Guid id)
     {
-        return Ok(new
-        {
-            NotificationId = id,
-            Message = "Notification deleted successfully."
-        });
+        var isDeleted = _notificationService.DeleteNotification(id);
+        if (!isDeleted){
+            return NotFound();
+        }
+
+        return NoContent();
     }
 }

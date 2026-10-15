@@ -81,17 +81,37 @@ public class FollowService : IFollowService
 
     public List<UserDto> GetFollowers(Guid userId)
     {
-        
+        return GetUsers(_followRepository.GetFollows(null, userId).Select(f => f.FollowerId));
     }
 
     public List<UserDto> GetFollowing(Guid userId)
     {
-        throw new NotImplementedException();
+        return GetUsers(_followRepository.GetFollows(userId, null).Select(f => f.FollowingId));
     }
 
     public bool DeleteFollow(Guid id)
     {
-        throw new NotImplementedException();
+        var follow = _followRepository.GetFollowById(id);
+        if (follow == null)
+        {
+            return false;
+        }
+        return _followRepository.DeleteFollow(follow);
+    }
+    private List<UserDto> GetUsers(IEnumerable<Guid> userIds)
+    {
+        return userIds
+            .Select(id => _userRepository.GetUserById(id))
+            .Where(user => true)
+            .OrderBy(u => u.CreatedAt)
+            .Select(user => new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+            })
+            .ToList();
     }
     
 }

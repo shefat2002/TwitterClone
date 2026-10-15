@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitterClone.Application.Dtos.Like;
+using TwitterClone.Application.Interfaces;
 using TwitterClone.Domain.Entities;
 
 namespace TwitterClone.API.Controllers;
@@ -7,61 +9,72 @@ namespace TwitterClone.API.Controllers;
 // api/likes
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class LikesController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
+    private readonly ILikeService _likeService;
 
-    public LikesController(IConfiguration configuration)
+    public LikesController(ILikeService likeService)
     {
-        _configuration = configuration;
+        _likeService = likeService;
     }
+
 
     // GET: api/likes
     [HttpGet]
-    public IActionResult GetLikes()
+    [ProducesResponseType(typeof(List<LikeDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult GetLikes([FromRoute] Guid id)
     {
-        var likes = new List<Like>
+        var likes = _likeService.GetLikeById(id);
+        if (likes == null)
         {
-            new(Guid.NewGuid(), Guid.NewGuid()),
-            new(Guid.NewGuid(), Guid.NewGuid()),
-            new(Guid.NewGuid(), Guid.NewGuid())
-        };
+            return NotFound();
+        }
         return Ok(likes);
+    }
+    
+    // GET: api/likes/{id}
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(LikeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult GetLikeById([FromRoute] Guid id)
+    {
+        var like = _likeService.GetLikeById(id);
+        if (like == null)
+        {
+            return NotFound();
+        }
+        return Ok(like);
     }
 
     // POST: api/likes
     [HttpPost]
-    public IActionResult LikeTweet()
+    [ProducesResponseType(typeof(LikeDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult CreateLike([FromBody] CreateLikeDto createLikeDto)
     {
-        return Ok(new
+        var createdLike = _likeService.CreateLike(createLikeDto);
+        if (createdLike == null)
         {
-            LikeId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            TweetId = Guid.NewGuid()
-        });
+            return BadRequest("Failed to create like.");
+        }
+
+        return CreatedAtAction(nameof(GetLikeById), new { id = createdLike.Id }, createdLike);
     }
 
-    // GET: api/likes/{id}
-    [HttpGet("{id}")]
-    public IActionResult GetLikeById([FromRoute] Guid id)
-    {
-        return Ok(new
-        {
-            LikeId = id,
-            UserId = Guid.NewGuid(),
-            TweetId = Guid.NewGuid()
-        });
-    }
 
     // DELETE: api/likes/{id}
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult UnlikeTweet([FromRoute] Guid id)
     {
-        return Ok(new
+        var isDeleted = _likeService.DeleteLike(id);
+        if (!isDeleted)
         {
-            LikeId = id,
-            Message = "Like removed successfully."
-        });
+            return NotFound();
+        }
+        return NoContent();
     }
 }
